@@ -62,6 +62,11 @@ DRSimpleConstraint >> isIncludedIn: otherConstraint [
 ]
 
 { #category : 'printing' }
+DRSimpleConstraint >> prettyPrint [
+	^ self className, '(', self constantValue prettyPrint, ')'.
+]
+
+{ #category : 'printing' }
 DRSimpleConstraint >> printOn: aStream [
 
 	aStream
