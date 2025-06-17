@@ -1274,6 +1274,14 @@ DRBasicBlock >> removeInstruction: aDRInstruction [
 		ifFalse: [ instructions remove: aDRInstruction ]
 ]
 
+{ #category : 'removing' }
+DRBasicBlock >> removePiNodes [
+
+	self piNodes do: [ :pi |
+		pi users do: [ :user | user replaceOperand: pi by: pi operand ].
+		self removeInstruction: pi ]
+]
+
 { #category : 'accessing' }
 DRBasicBlock >> removePredecessor: aDRBasicBlock [ 
 	
