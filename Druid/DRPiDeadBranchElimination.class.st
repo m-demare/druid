@@ -51,8 +51,6 @@ DRPiDeadBranchElimination >> computeUnreachableBlocks [
 		(self isReachable: currentBlock)
 			ifTrue: [ self addSuccessorsToWorklist: currentBlock ]
 			ifFalse: [ unreachableBlocks add: currentBlock ] ].
-		"TODO if a block is unreachable, then its sibling must be reachable,
-		so we can remove it from the worklist"
 	^ unreachableBlocks
 ]
 
