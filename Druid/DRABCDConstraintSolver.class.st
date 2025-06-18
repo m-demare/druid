@@ -4,9 +4,10 @@ Class {
 	#instVars : [
 		'nodes',
 		'edges',
-		'worklist',
 		'cfg',
-		'memo'
+		'memo',
+		'isCheckingUpperBounds',
+		'reversibleEdges'
 	],
 	#category : 'Druid-IR-Paths',
 	#package : 'Druid',
@@ -20,14 +21,28 @@ DRABCDConstraintSolver class >> for: aDRControlFlowGraph [
 ]
 
 { #category : 'building - graph' }
+DRABCDConstraintSolver >> addEdgeFrom: src to: dst weight: w [
+
+	^ edges add: { src. dst. w }
+]
+
+{ #category : 'building - graph' }
+DRABCDConstraintSolver >> addEdgeFrom: src to: dst weight: w reversible: isReversible [
+
+	| edge |
+	edge := self addEdgeFrom: src to: dst weight: w.
+
+	isReversible ifTrue: [ reversibleEdges add: edge ].
+	
+	^ edge
+]
+
+{ #category : 'building - graph' }
 DRABCDConstraintSolver >> addEdgesBetweenConstants [
 
 	((nodes select: #isNumberValue) asOrderedCollection sortedAs: #value)
 		overlappingPairsDo: [ :c1 :c2 |
-			edges add: {
-					c1.
-					c2.
-					(c2 value - c1 value) } ]
+			self addEdgeFrom: c1 to: c2 weight: c2 value - c1 value ]
 ]
 
 { #category : 'building - graph' }
@@ -59,6 +74,9 @@ DRABCDConstraintSolver >> initializeFor: aDRControlFlowGraph [
 	
 	memo := Dictionary new.
 	
+	isCheckingUpperBounds := true.
+	reversibleEdges := OrderedCollection new.
+	
 	self buildGraph.
 
 ]
@@ -68,10 +86,18 @@ DRABCDConstraintSolver >> isSatisfiable: aDRPiNode [
 	"TODO - for unsupported constraints, return true
 			- do we need different ABCD subclasses for upper/lower bounds checks?"
 
-	| shortestPath minABCDDistanceToBeSatisfiable |
-	minABCDDistanceToBeSatisfiable := aDRPiNode constraint
-		                                  minABCDDistanceToBeSatisfiable
-		                                  ifNil: [ ^ true ].
+	| shortestPath minABCDDistanceToBeSatisfiable source dst |
+	minABCDDistanceToBeSatisfiable := (aDRPiNode constraint
+		                                  minABCDDistanceToBeSatisfiableIsUpperCheck: isCheckingUpperBounds)
+		                                  ifNil: [ ^ true ].1halt.
+	isCheckingUpperBounds
+		ifTrue: [
+			source := self piNodesOriginalVariable:
+				          aDRPiNode constraint constantValue asDRValue.
+			dst := aDRPiNode operand ]
+		ifFalse: [
+			source := self piNodesOriginalVariable: aDRPiNode operand.
+			dst := aDRPiNode constraint constantValue asDRValue ].
 
 	shortestPath := AIShortestPathWithMaxAndMinNodes new.
 	shortestPath nodes: nodes.
@@ -82,8 +108,7 @@ DRABCDConstraintSolver >> isSatisfiable: aDRPiNode [
 		weight: #third.
 
 	shortestPath
-		start: (self piNodesOriginalVariable:
-					 aDRPiNode constraint constantValue asDRValue);
+		start: source;
 		isMaxNodePredicate: [ :n | n isPhiFunction ];
 		memoDictionary: memo.
 	shortestPath run.
@@ -91,7 +116,7 @@ DRABCDConstraintSolver >> isSatisfiable: aDRPiNode [
 	"Distance < 0 means the other side is a tautology => this side is unsatisfiable
 	>= 0 means this side isn't tautology => this side is satisfiable"
 	^ (shortestPath
-		   distanceTo: aDRPiNode operand
+		   distanceTo: dst
 		   isLessThan: minABCDDistanceToBeSatisfiable) = -1
 ]
 
@@ -109,10 +134,11 @@ DRABCDConstraintSolver >> processAdd: aDRValue [
 	ops first isNumberValue ifTrue: [ ops := ops reversed ].
 	ops second isNumberValue ifFalse: [ ^ nil ].
 
-	edges add: {
-			ops first.
-			aDRValue.
-			ops second value }
+	self
+		addEdgeFrom: ops first
+		to: aDRValue
+		weight: ops second value
+		reversible: true.
 ]
 
 { #category : 'building - graph' }
@@ -121,10 +147,11 @@ DRABCDConstraintSolver >> processCopy: aDRValue [
 
 	aDRValue operands do: [ :op |
 		nodes add: op.
-		edges add: {
-				op.
-				aDRValue.
-				0 } ].
+		self
+			addEdgeFrom: op
+			to: aDRValue
+			weight: 0
+			reversible: aDRValue isPiNode not ].
 
 	aDRValue isPiNode ifTrue: [ self processPiNode: aDRValue ]
 ]
@@ -154,10 +181,11 @@ DRABCDConstraintSolver >> processSub: aDRValue [
 	ops := aDRValue operands.
 	ops second isNumberValue ifFalse: [ ^ nil ].
 
-	edges add: {
-			ops first.
-			aDRValue.
-			ops second value negated }
+	self
+		addEdgeFrom: ops first
+		to: aDRValue
+		weight: ops second value negated
+		reversible: true
 ]
 
 { #category : 'building - graph' }
@@ -169,4 +197,14 @@ DRABCDConstraintSolver >> processValue: aDRValue [
 
 	(aDRValue isCopy or: aDRValue isPhiFunction) ifTrue: [
 		^ self processCopy: aDRValue ]
+]
+
+{ #category : 'building - graph' }
+DRABCDConstraintSolver >> reverseEdgesForLowerBoundsCheck [
+
+	isCheckingUpperBounds := isCheckingUpperBounds not.
+
+	reversibleEdges do: [ :edge | edge swap: 1 with: 2 ].
+	
+	memo removeAll
 ]

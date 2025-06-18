@@ -110,7 +110,7 @@ DRConditionalConstraint >> isUnion [
 ]
 
 { #category : 'as yet unclassified' }
-DRConditionalConstraint >> minABCDDistanceToBeSatisfiable [
+DRConditionalConstraint >> minABCDDistanceToBeSatisfiableIsUpperCheck: isCheckingUpperBounds [
 
 	^ nil
 ]

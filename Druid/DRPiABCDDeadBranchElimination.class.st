@@ -11,4 +11,7 @@ DRPiABCDDeadBranchElimination >> applyTo: cfg [
 
 	solver := DRABCDConstraintSolver for: cfg.
 	super applyTo: cfg.
+	1halt.
+	solver reverseEdgesForLowerBoundsCheck.
+	super applyTo: cfg.
 ]

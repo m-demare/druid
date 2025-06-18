@@ -31,7 +31,7 @@ DRGreaterConstraint >> isIncludedIn: otherConstraint [
 ]
 
 { #category : 'reversing' }
-DRGreaterConstraint >> minABCDDistanceToBeSatisfiable [
+DRGreaterConstraint >> minABCDDistanceToBeSatisfiableIsUpperCheck: isCheckingUpperBounds [
 
 	"TODO
 	I'm not sure, but I think returning 1 here is fine, and may allow it to optimize more cases.
