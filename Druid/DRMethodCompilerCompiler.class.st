@@ -9,6 +9,26 @@ Class {
 	#tag : 'CompilerCompiler'
 }
 
+{ #category : 'compiling' }
+DRMethodCompilerCompiler class >> compileMethod: aCompiledMethod [
+
+	| compilerCompiler cfg method |
+	compilerCompiler := self new.
+	compilerCompiler interpreter: aCompiledMethod methodClass basicNew.
+	compilerCompiler configureForCompilerClass: nil.
+
+	cfg := compilerCompiler generateDruidIRFor: aCompiledMethod.
+	compilerCompiler optimize: cfg.
+
+	method := DRBytecodeGenerator
+		          generateMethodFromCFG: cfg
+		          withSelector: aCompiledMethod selector
+		          numArgs: compilerCompiler irGenerator numberOfArguments.
+	method methodClass: aCompiledMethod methodClass.
+
+	^ method
+]
+
 { #category : 'ir-generation' }
 DRMethodCompilerCompiler >> argName: index forMethod: method [
 

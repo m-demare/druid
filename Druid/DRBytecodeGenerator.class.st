@@ -12,6 +12,28 @@ Class {
 	#tag : 'BytecodeGeneration'
 }
 
+{ #category : 'utilities' }
+DRBytecodeGenerator class >> generateMethodFromCFG: aDRControlFlowGraph withSelector: selector numArgs: numArgs [
+
+	| bytecodeGenerator |
+	aDRControlFlowGraph applyOptimisation: DRFrameInfoCleaner new.
+	aDRControlFlowGraph applyOptimisation:
+		(DRBranchCollapse then: DRPhiSimplication).
+	aDRControlFlowGraph applyOptimisation:
+		(DRSCCP then: DRCopyPropagation then: DRDeadCodeElimination).
+
+	DRLocalVariableInstructionScheluder new applyTo: aDRControlFlowGraph.
+	
+	bytecodeGenerator := self new.
+	bytecodeGenerator numArgs: numArgs.
+	bytecodeGenerator methodName: selector.
+	bytecodeGenerator
+		generateTargetASTFromIR: aDRControlFlowGraph
+		methodName: selector.
+
+	^ bytecodeGenerator targetAST
+]
+
 { #category : 'API' }
 DRBytecodeGenerator >> createTempVector: temporariesList [
 	
