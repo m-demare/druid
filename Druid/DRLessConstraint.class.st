@@ -37,6 +37,13 @@ DRLessConstraint >> isIncludedIn: otherConstraint [
 ]
 
 { #category : 'arithmetic' }
+DRLessConstraint >> minABCDDistanceToBeSatisfiableIsUpperCheck: isCheckingUpperBounds [
+
+	^ isCheckingUpperBounds ifTrue: [nil] ifFalse: [0]
+
+]
+
+{ #category : 'arithmetic' }
 DRLessConstraint >> negated [
 
 	^ DRGreaterOrEqualsConstraint withValue: constantValue

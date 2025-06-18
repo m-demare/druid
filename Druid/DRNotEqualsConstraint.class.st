@@ -62,6 +62,13 @@ DRNotEqualsConstraint >> isIncludedIn: otherConstraint [
 	^ (otherConstraint hasAllValuesLessThan: constantValue) and: [ otherConstraint hasAllValuesGreaterThan: constantValue ]
 ]
 
+{ #category : 'reversing' }
+DRNotEqualsConstraint >> minABCDDistanceToBeSatisfiableIsUpperCheck: isCheckingUpperBounds [
+
+	^ isCheckingUpperBounds ifTrue: [nil] ifFalse: [0]
+
+]
+
 { #category : 'arithmetic' }
 DRNotEqualsConstraint >> negated [
 

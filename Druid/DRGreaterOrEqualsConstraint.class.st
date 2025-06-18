@@ -31,9 +31,10 @@ DRGreaterOrEqualsConstraint >> isIncludedIn: otherConstraint [
 ]
 
 { #category : 'arithmetic' }
-DRGreaterOrEqualsConstraint >> minABCDDistanceToBeSatisfiable [
+DRGreaterOrEqualsConstraint >> minABCDDistanceToBeSatisfiableIsUpperCheck: isCheckingUpperBounds [
 
-	^ 0
+	^ isCheckingUpperBounds ifTrue: [0] ifFalse: [nil]
+
 ]
 
 { #category : 'arithmetic' }

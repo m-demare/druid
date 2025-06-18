@@ -63,9 +63,9 @@ DREqualsConstraint >> isIncludedIn: otherConstraint [
 ]
 
 { #category : 'printing' }
-DREqualsConstraint >> minABCDDistanceToBeSatisfiable [
+DREqualsConstraint >> minABCDDistanceToBeSatisfiableIsUpperCheck: isCheckingUpperBounds [
 
-	^ 0
+	^ isCheckingUpperBounds ifTrue: [0] ifFalse: [nil]
 ]
 
 { #category : 'arithmetic' }
