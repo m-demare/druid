@@ -20,6 +20,7 @@ DRPiDeadBranchElimination >> addSuccessorsToWorklist: aDRBasicBlock [
 			worklist add: succ.
 			visited add: succ.
 		].
+
 ]
 
 { #category : 'accessing' }

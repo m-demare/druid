@@ -2,7 +2,6 @@
 
 The Druid project explores the automatic generation of machine code templates from bytecode interpreters using an abstract interpreter on the existing bytecode interpreter (a meta-interpreter).
 This approach could benefit from having a single runtime implementation and having a JIT compiler generated from it.
-
 ## Context
 
 JIT (Just-in-Time) compilers are an optimization technique often used for interpreted languages and virtual machines.
@@ -51,7 +50,7 @@ cp libunicorn.2.dylib /opt/homebrew/Cellar/unicorn/2.0.1/lib
 
 Open the Pharo image with the [Unicorn project loaded](https://github.com/pharo-project/pharo-unicorn) and check:
 ```smalltalk
-UnicornLibrary uniqueInstance macModuleName 
+UnicornLibrary uniqueInstance macModuleName
 ```
 
 ### Installing Druid
@@ -59,7 +58,7 @@ UnicornLibrary uniqueInstance macModuleName
 Druid works for now on Pharo 11:
 
 ```smalltalk
-EpMonitor disableDuring: [ 
+EpMonitor disableDuring: [
 	Metacello new
 		repository: 'github://Alamvic/druid:main';
 		baseline: 'Druid';
@@ -116,7 +115,7 @@ Druid works on the Slang part of the VM, and its scope does not touch (for now) 
 Pharo methods are written as bytecodes and primitives.
 For example, the following method is compiled as a method made of platform independent bytecode and an array of literals (also called literal frame) used in that method.
 The bytecodes are virtual machine code instructions, the literals are the objects that represent fixed values used in that method.
-For example, 1 and 17 are literals in this method. Besides numbers, other kind of literals are `'strings'`, literal arrays such as `#(a b c 1)` and characters `$A`. 
+For example, 1 and 17 are literals in this method. Besides numbers, other kind of literals are `'strings'`, literal arrays such as `#(a b c 1)` and characters `$A`.
 
 ```smalltalk
 MyClass >> foo
@@ -236,10 +235,10 @@ To verify the correctness of the compiler we use:
 
 ## The (meta-)interpreter
 
-The setup is the following: we have one Pharo AST interpreter that we call the meta-interpreter that executes the code code of the 
+The setup is the following: we have one Pharo AST interpreter that we call the meta-interpreter that executes the code code of the
 `StackInterpreter` and generates the corresponding intermediate representation of `StackInterpreter` methods.
 Check `Fun with interpreters` from the references to see more details on what an ASTs and abstract interpreters are.
-In the code below, the meta-interpreter is called `DRASTInterpreter` (for the DruidAST interpreter) and it will analyse the methods 
+In the code below, the meta-interpreter is called `DRASTInterpreter` (for the DruidAST interpreter) and it will analyse the methods
 of the stack interpreter returned byt the expression `Druid new newBytecodeInterpreter`.
 For this task, the meta-interpreter uses an IR builder that is responsible for encapsulating the logic of IR building.
 
@@ -252,7 +251,7 @@ astInterpreter vmInterpreter: Druid new newBytecodeInterpreter.
 astInterpreter irBuilder: builder.
 ```
 
-This AST interpreter then receives as input a list of bytecodes to analyze, it maps each bytecode to the routine to execute, 
+This AST interpreter then receives as input a list of bytecodes to analyze, it maps each bytecode to the routine to execute,
 obtains the AST and interprets each of the instructions of the AST using a visitor pattern.
 
 ```smalltalk
@@ -265,12 +264,12 @@ The `DRASTInterpreter` class implements a `visiting` protocol where the `visit` 
 Most of the visit methods are simple, like the following ones:
 
 ```smalltalk
-DRASTInterpreter >> visitSelfNode: aRBSelfNode 
+DRASTInterpreter >> visitSelfNode: aRBSelfNode
 
 	^ self receiver
 
-DRASTInterpreter >> visitTemporaryNode: aRBTemporaryNode 
-	
+DRASTInterpreter >> visitTemporaryNode: aRBTemporaryNode
+
 	^ currentContext temporaryNamed: aRBTemporaryNode name
 ```
 
@@ -294,10 +293,10 @@ If we find a special case in the entry, we invoke that special entry in the inte
 Otherwise, we lookup the method and activate the new method, which will recursively continue the interpretation
 
 ```smalltalk
-DRASTInterpreter >> visitMessageNode: aRBMessageNode 
-	
+DRASTInterpreter >> visitMessageNode: aRBMessageNode
+
 	| arguments astToInterpret receiver |
-	
+
 	"First interpret the arguments to generate instructions for them.
 	If this is a special selector, treat it specially with those arguments.
 	Otherwise, lookup and interpret the called method propagating the arguments"
@@ -323,12 +322,12 @@ DRASTInterpreter >> initialize
 
 	super initialize.
 	irBuilder := DRIRBuilder new.
-	
+
 	specialSelectorTable := Dictionary new.
     ...
 	specialSelectorTable at: #internalPush: put: #interpretInternalPushOn:receiver:arguments:.
-    
-DRASTInterpreter >> interpretInternalPushOn: aRBMessageNode receiver: aStackInterpreterSimulatorLSB arguments: aCollection 
+
+DRASTInterpreter >> interpretInternalPushOn: aRBMessageNode receiver: aStackInterpreterSimulatorLSB arguments: aCollection
 
     ^ irBuilder push: aCollection first
 ```
@@ -350,7 +349,7 @@ To simulate the same behaviour in our interpreter, its special case is implement
 DRASTInterpreter >> interpretFetchNextBytecodeOn: aMessageSendNode receiver: aReceiver arguments: arguments
 
 	self fetchNextInstruction
-    
+
 DRASTInterpreter >> fetchNextInstruction
 
 	currentBytecode := instructionStream next
@@ -372,12 +371,12 @@ We can then generate machine code from them using the `DRIntermediateRepresentat
 	endAddress := mcTranslator generate.
 ```
 
-`DRIntermediateRepresentationToMachineCodeTranslator` iterates all the instructions and uses the double-dispatch pattern to 
+`DRIntermediateRepresentationToMachineCodeTranslator` iterates all the instructions and uses the double-dispatch pattern to
 generate code for each of them.
 It uses a backend to generate the actual machine code.
 
 ```smalltalk
-aCollection do: [ :anIRInstruction | 
+aCollection do: [ :anIRInstruction |
 	anIRInstruction accept: self ].
 
 DRIntermediateRepresentationToMachineCodeTranslator >> visitAdd:
@@ -407,7 +406,7 @@ Other test classes test a basic register allocation algorithm (`DRRegisterAlloca
 - In tbe book [https://github.com/SquareBracketAssociates/PatternsOfDesign/releases](https://github.com/SquareBracketAssociates/PatternsOfDesign/releases)
 - Chapter 4: Die and DieHandle double Dispatch (if you want to make sure that Double Dispatch has been understood do the Stone Paper Scissor Chapter)
 - Chapter 3 A little expression interpreter
-- Chapter 6 Understanding visitor 
+- Chapter 6 Understanding visitor
 - After reading [https://github.com/SquareBracketAssociates/Booklet-FunWithInterpreters](https://github.com/SquareBracketAssociates/Booklet-FunWithInterpreters)
 
 
