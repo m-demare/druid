@@ -1405,6 +1405,8 @@ DRBasicBlock >> sourceInterval [
 DRBasicBlock >> splitTo: predecessorToRewire [
 
 	| duplicatedBlock newSuccessors allDominatedBlocks |
+	controlFlowGraph addSplitBlock.
+
 	self assert: self predecessors size > 1.
 
 	newSuccessors := self newEmptySuccessors.

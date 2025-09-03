@@ -114,7 +114,9 @@ DRPiDeadBranchElimination >> piNodesOfBranchWithHeader: aDRBasicBlock [
 { #category : 'removing' }
 DRPiDeadBranchElimination >> removeUnnecessaryConditionalJumps: deadEdges [
 
-	deadEdges do: #kill
+	deadEdges do: [:e |
+		e kill.
+		e source controlFlowGraph addKilledBranch. ]
 ]
 
 { #category : 'analysis' }

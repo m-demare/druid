@@ -16,7 +16,9 @@ Class {
 		'postDominatorTree',
 		'deadBranches',
 		'numArgs',
-		'markedBlocks'
+		'markedBlocks',
+		'killedBranches',
+		'splitBlocks'
 	],
 	#category : 'Druid-IR',
 	#package : 'Druid',
@@ -47,6 +49,23 @@ DRControlFlowGraph >> addEdgeFrom: sourceBlock to: destinationBlock branchIndex:
 	edge := DRCPSEdge withSource: sourceBlock andDestination: destinationBlock branchIndex: branchIndex.
 	self addEdge: edge.
 	^ edge
+]
+
+{ #category : 'initialization' }
+DRControlFlowGraph >> addKilledBranch [
+
+	killedBranches := killedBranches + 1.
+]
+
+{ #category : 'accessing' }
+DRControlFlowGraph >> addScopeToInstructionIfNeeded: anInstruction [
+
+]
+
+{ #category : 'initialization' }
+DRControlFlowGraph >> addSplitBlock [
+
+	splitBlocks := splitBlocks + 1.
 ]
 
 { #category : 'adding' }
@@ -559,6 +578,8 @@ DRControlFlowGraph >> initialize [
 
 	markedBlocks := Set new.
 	
+	killedBranches := 0.
+	splitBlocks := 0.
 ]
 
 { #category : 'inspecting' }
@@ -655,6 +676,12 @@ DRControlFlowGraph >> isMapped [
 
 	self instructionsDo: [ :i | (i isCall and: [ i isMapped ]) ifTrue: [ ^ true ] ].
 	^ false
+]
+
+{ #category : 'initialization' }
+DRControlFlowGraph >> killedBranches [
+
+	^ killedBranches
 ]
 
 { #category : 'accessing' }
@@ -931,6 +958,12 @@ DRControlFlowGraph >> simplePathsBetween: sourceNode and: destinationNode [
 
 	depthFirstSearch value: sourceNode value: destinationNode.
 	^ simplePaths 
+]
+
+{ #category : 'initialization' }
+DRControlFlowGraph >> splitBlocks [
+
+	^ splitBlocks
 ]
 
 { #category : 'accessing - query' }

@@ -90,13 +90,13 @@ DRPrimitiveCompilerCompiler >> initialize [
 	3 timesRepeat: [ 
 		optimisations add: DRBranchCollapse new.
 		"optimisations add: DRFailureCodeBasedTailDuplication new."
-		optimisations add: (DRSCCP then: DRDeadBlockElimination).
+"		optimisations add: (DRSCCP then: DRDeadBlockElimination)."
 		optimisations add: DRCopyPropagation new.
 		optimisations add: DRPhiSimplication new.
 		optimisations add: DRCogitCanonicaliser new.
 		optimisations add: (DRDeadCodeElimination then: DRRedundantCopyElimination).
 		optimisations add: DRCleanControlFlow new.
-		optimisations add: (DRDeadEdgeSplitting then: DRDeadBranchElimination).
+"		optimisations add: (DRDeadEdgeSplitting then: DRDeadBranchElimination)."
 		optimisations add: DRInline new. ].
 	
 	"Last Phase, make code coggable"

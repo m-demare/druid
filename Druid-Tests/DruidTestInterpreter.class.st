@@ -1855,6 +1855,38 @@ DruidTestInterpreter >> primitiveOr [
 ]
 
 { #category : 'as yet unclassified' }
+DruidTestInterpreter >> primitivePiNodesBench [
+
+	<numberOfArguments: 1>
+	| res x y z |
+	x := self stackValue: 0.
+	y := self stackValue: 1.
+	z := y - 5.
+	res := x < 10
+		       ifTrue: [
+			       x < 5
+				       ifFalse: [ 123 "Dead" ]
+				       ifTrue: [
+					       1 < y
+						       ifTrue: [
+							       [ 9 < y ] whileTrue: [
+								       x - 1 < y
+									       ifTrue: [ x := x + 1 ]
+									       ifFalse: [ x := x + 2 "Dead" ] ].
+							       z := x + 1.
+							       z > 15
+								       ifTrue: [ 456 "Dead" ]
+								       ifFalse: [
+									       [ z > 17 ] whileTrue: [ z := z - 1 "Dead" ].
+									       456 ] ]
+						       ifFalse: [ 234 "Dead" ] ] ]
+		       ifFalse: [ 99 ].
+
+	self pop: 2 thenPush: res
+
+]
+
+{ #category : 'as yet unclassified' }
 DruidTestInterpreter >> primitivePlusFloatConstant [
 
 	<numberOfArguments: 0>

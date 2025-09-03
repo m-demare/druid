@@ -28,6 +28,7 @@ DRDeadBranchElimination >> doApplyWithGeneratedPaths: cfg [
 DRDeadBranchElimination >> removeBranchFrom: sourceBasicBlock to: destinationBasicBlock [
 
 	| newSucessors |
+	sourceBasicBlock controlFlowGraph addKilledBranch.
 	newSucessors := sourceBasicBlock successors copyWithout: destinationBasicBlock.
 	newSucessors
 		ifEmpty: [ sourceBasicBlock removeFromCFG ]

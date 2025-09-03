@@ -24,9 +24,13 @@ StackToRegisterMappingCogit class >> druidNewOptimizationList [
 		optimisations add: DRCleanControlFlow new.
 
 		optimisations add: DRCleanStackInstructions new.
-
-		optimisations add: (DRDeadEdgeSplitting then: DRDeadBranchElimination).
+		
+		optimisations add: (DRMeasuredOptimization new optimization: Optimization).
+"		optimisations add: (DRDeadEdgeSplitting then: DRDeadBranchElimination)."
 		optimisations add: (DRPhiSimplication then: DRCopyPropagation) ].
+
+	
+
 
 	"Last Phase, make code coggable"
 	optimisations add: (DRCogitStackCanonicaliser then: DRSCCP).

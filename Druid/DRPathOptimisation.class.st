@@ -16,7 +16,7 @@ DRPathOptimisation >> canBeAppliedIn: aDRontrolFlowGraph [
 DRPathOptimisation >> doApply: cfg [
 
 	cfg applyOptimisation: DRBranchCollapse new.
-	cfg generatePaths ifFalse: [ ^ self ].
+	cfg generatePaths ifFalse: [ DidTimeOut := true. ^ self ].
 	self doApplyWithGeneratedPaths: cfg.
 ]
 
