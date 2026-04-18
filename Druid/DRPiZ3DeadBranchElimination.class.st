@@ -2,7 +2,7 @@ Class {
 	#name : 'DRPiZ3DeadBranchElimination',
 	#superclass : 'DRPiDeadBranchElimination',
 	#instVars : [
-		'signedIntOverflowIsUB'
+		'withUB'
 	],
 	#category : 'Druid-Optimizations',
 	#package : 'Druid',
@@ -20,13 +20,13 @@ DRPiZ3DeadBranchElimination >> applyTo: cfg [
 
 	solver := DRZ3ConstraintSolver
 		          for: cfg
-		          signedIntOverflowIsUB:
-		          (signedIntOverflowIsUB ifNil: [ false ]).
+		          withUB:
+		          (withUB ifNil: [ false ]).
 	super applyTo: cfg
 ]
 
 { #category : 'initialization' }
 DRPiZ3DeadBranchElimination >> withUndefinedBehaviour: ub [
 
-	signedIntOverflowIsUB := ub
+	withUB := ub
 ]

@@ -8,7 +8,9 @@ Class {
 		'ctxt',
 		'signedIntOverflowIsUB',
 		'useFloats',
-		'visitedPhis'
+		'visitedPhis',
+		'divisionByZeroIsUB',
+		'loadFromNullIsUB'
 	],
 	#category : 'Druid-IR-Paths',
 	#package : 'Druid',
@@ -18,13 +20,13 @@ Class {
 { #category : 'instance creation' }
 DRZ3ConstraintSolver class >> for: aDRControlFlowGraph [
 
-	^ self for: aDRControlFlowGraph signedIntOverflowIsUB: false
+	^ self for: aDRControlFlowGraph withUB: false
 ]
 
 { #category : 'instance creation' }
-DRZ3ConstraintSolver class >> for: aDRControlFlowGraph signedIntOverflowIsUB: aBoolean [
+DRZ3ConstraintSolver class >> for: aDRControlFlowGraph withUB: aBoolean [
 
-	^ self new for: aDRControlFlowGraph signedIntOverflowIsUB: aBoolean
+	^ self new for: aDRControlFlowGraph withUB: aBoolean
 ]
 
 { #category : 'z3' }
@@ -78,14 +80,16 @@ DRZ3ConstraintSolver >> drValAsZ3Val: aDRValue ifUnsupported: aBlock [
 ]
 
 { #category : 'initialization' }
-DRZ3ConstraintSolver >> for: aDRControlFlowGraph signedIntOverflowIsUB: aBoolean [
+DRZ3ConstraintSolver >> for: aDRControlFlowGraph withUB: withUB [
 
 	cfg := aDRControlFlowGraph.
 	
 	memo := IdentityDictionary new.
 	
-	signedIntOverflowIsUB := aBoolean.
-	
+	signedIntOverflowIsUB := withUB.
+	divisionByZeroIsUB := withUB.
+	loadFromNullIsUB := withUB.
+
 	useFloats := false.
 ]
 
@@ -241,6 +245,13 @@ DRZ3ConstraintSolver >> visitCopy: aDRCopy [
 { #category : 'visiting' }
 DRZ3ConstraintSolver >> visitDivision: aDRDivision [
 
+	(divisionByZeroIsUB and: [ aDRDivision type isIntegerType ]) ifTrue: [
+		| op2 |
+		op2 := self
+			       drValAsZ3Val: aDRDivision operand2
+			       ifUnsupported: [ ^ nil ].
+		assertions add: op2 ~== 0
+	].
 	^ self visitBinaryOp: aDRDivision with: #/
 ]
 
@@ -336,7 +347,12 @@ DRZ3ConstraintSolver >> visitLeftShift: aDRLeftShift [
 { #category : 'visiting' }
 DRZ3ConstraintSolver >> visitLoad: aDRLoad [
 
-	
+	(loadFromNullIsUB and: [ aDRLoad isLoadStackValue not and: [ aDRLoad address isAbsolute ] ]) ifTrue: [
+		| addr |
+		addr := self
+			        drValAsZ3Val: aDRLoad address expression
+			        ifUnsupported: [ ^ nil ].
+		assertions add: addr ~== 0 ]
 ]
 
 { #category : 'visiting' }
