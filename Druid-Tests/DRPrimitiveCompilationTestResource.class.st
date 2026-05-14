@@ -10,7 +10,7 @@ DRPrimitiveCompilationTestResource class >> modeDev [
 	"Replace for the bytecode that you are testing"
 
 	<script>
-	mode := #primitiveAdd.
+	mode := #primitiveAt.
 	self new setUp
 ]
 
