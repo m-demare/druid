@@ -110,6 +110,7 @@ DRCleanControlFlow >> shouldCombineBlock: aDRBasicBlock [
 	 - the first block contains a non conditional jump to the second block
 	 - the second block has as single predecessor the first block"
 	aDRBasicBlock endInstruction isNonConditionalJump ifFalse: [ ^ false ].
+	(aDRBasicBlock successor successors includes: aDRBasicBlock) ifTrue: [ ^ false ].
 	
 	"Cannot combine blocks if the second block has phi functions.
 	This is because this may break phi function invariants such as:
@@ -118,7 +119,7 @@ DRCleanControlFlow >> shouldCombineBlock: aDRBasicBlock [
 	^ aDRBasicBlock successor predecessors size = 1
 		and: [ 
 			aDRBasicBlock successor isExitBlock not
-				and: [ aDRBasicBlock successor instructions noneSatisfy: [ :i | i isPhiFunction ] ] ]
+				and: [ aDRBasicBlock successor phiFunctions isEmpty ] ]
 ]
 
 { #category : 'folding' }
@@ -162,6 +163,8 @@ DRCleanControlFlow >> shouldRemoveEmptyBlock: aDRBasicBlock [
 		ifTrue: [ ^ false ].
 	aDRBasicBlock endInstruction isNonConditionalJump
 		ifFalse: [ ^ false ].
+	(aDRBasicBlock successor successors includes: aDRBasicBlock)
+		ifTrue: [ ^ false ].
 		
 	"If removing this block would make my predecessor point twice to the same successor, do not do it"
 	((aDRBasicBlock predecessors anySatisfy: [ :e |
