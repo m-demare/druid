@@ -73,7 +73,7 @@ DRPiDeadBranchElimination >> directSuccessorsOf: aDRBasicBlock do: aBlock [
 		aBlock value: current.
 		current successors size = 1
 			ifTrue: [
-				current := current successors unique.
+				current := current successor.
 				true ]
 			ifFalse: [ false ]
 	] whileTrue

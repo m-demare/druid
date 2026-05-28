@@ -110,10 +110,9 @@ DRPiMessageSplitting >> trySplitPhi: aDRPhiFunction toIndex: operandIdx with: aD
 	predecessor := aDRPhiFunction basicBlock predecessorAt: operandIdx.
 
 	"Avoid backjumps edges, they are difficult to fix"
-	(DREdge
-		 withSource: predecessor
-		 andDestination: aDRPhiFunction basicBlock) isBackJump ifTrue: [
-		^ self ].
+	(aDRPhiFunction basicBlock predecessors anySatisfy: [ :pred |
+		(DREdge withSource: pred andDestination: aDRPhiFunction basicBlock)
+			isBackJump ]) ifTrue: [ ^ self ].
 
 	"Evaluate profitability.
 	Split if either 
@@ -126,6 +125,7 @@ DRPiMessageSplitting >> trySplitPhi: aDRPhiFunction toIndex: operandIdx with: aD
 			 for: op ]) ifTrue: [ ^ self ].
 
 	aDRPhiFunction basicBlock splitTo: predecessor.
+	
 	aBlock value
 ]
 
