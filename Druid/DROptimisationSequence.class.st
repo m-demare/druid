@@ -9,6 +9,18 @@ Class {
 	#tag : 'Optimizations'
 }
 
+{ #category : 'instance creation' }
+DROptimisationSequence class >> with: aCollection [
+
+	| retVal |
+	retVal := self new.
+	aCollection do: [ :opt |
+		retVal addOptimisation: opt 
+	].
+
+	^retVal.
+]
+
 { #category : 'adding' }
 DROptimisationSequence >> addOptimisation: anOptimisation [
 
