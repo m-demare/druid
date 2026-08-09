@@ -36,7 +36,7 @@ DRPiMessageSplitting >> applyTo: cfg [
 DRPiMessageSplitting >> doWhilePossible: aBlock [
 
 	| maxIters continue |
-	maxIters := 5.
+	maxIters := 3.
 	continue := true.
 	[ maxIters > 0 and: continue ] whileTrue: [
 		continue := aBlock value.

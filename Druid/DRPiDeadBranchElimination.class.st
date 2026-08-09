@@ -89,13 +89,9 @@ DRPiDeadBranchElimination >> isAlive: aDREdge [
 { #category : 'analysis' }
 DRPiDeadBranchElimination >> isReachable: destinationBlock from: sourceBlock [
 
-	| phiReplacements i |
+	| phiReplacements |
 	
-	phiReplacements := Dictionary new.
-	i := destinationBlock predecessors indexOf: sourceBlock.
-	destinationBlock phiFunctions do: [ :phi |
-		phiReplacements at: phi put: (phi operands at: i).
-	].
+	phiReplacements := self phiReplacementsFor: destinationBlock comingFrom: sourceBlock.
 	
 	^ (self piNodesOfBranchWithHeader: destinationBlock) allSatisfy: [ :pi |
 		solver isSatisfiable: pi replacingPhis: phiReplacements ]
@@ -109,6 +105,21 @@ DRPiDeadBranchElimination >> lastOfDirectBranchFrom: aDRBasicBlock [
 	tail := aDRBasicBlock.
 	self directSuccessorsOf: aDRBasicBlock do: [ :b | tail := b ].
 	^ tail
+]
+
+{ #category : 'analysis' }
+DRPiDeadBranchElimination >> phiReplacementsFor: destinationBlock comingFrom: sourceBlock [
+
+	| phiReplacements i |
+	
+	phiReplacements := Dictionary new.
+	i := destinationBlock predecessors indexOf: sourceBlock.
+	destinationBlock phiFunctions do: [ :phi |
+		phiReplacements at: phi put: (phi operands at: i).
+	].
+	
+	^ phiReplacements.
+
 ]
 
 { #category : 'analysis' }
