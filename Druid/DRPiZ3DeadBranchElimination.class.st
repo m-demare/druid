@@ -25,7 +25,7 @@ DRPiZ3DeadBranchElimination >> applyTo: cfg [
 	super applyTo: cfg
 ]
 
-{ #category : 'initialization' }
+{ #category : 'as yet unclassified' }
 DRPiZ3DeadBranchElimination >> withUndefinedBehaviour: ub [
 
 	withUB := ub

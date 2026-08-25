@@ -15,6 +15,13 @@ DRComposedConstraintSolver >> isSatisfiable: aDRPiNode [
 ]
 
 { #category : 'solving' }
+DRComposedConstraintSolver >> isSatisfiable: aDRPiNode replacingPhis: aDictionary [
+
+	^ solvers allSatisfy: [ :s |
+		  s isSatisfiable: aDRPiNode replacingPhis: aDictionary ]
+]
+
+{ #category : 'solving' }
 DRComposedConstraintSolver >> solvers: aCollection [
 	solvers := aCollection
 ]
